@@ -1,0 +1,53 @@
+pipeline {
+       agent any
+       
+       environment {
+           NEXUS_URL = "localhost:8082"
+           IMAGE_NAME = "my-node-app"
+           GIT_REPO = "https://github.com/EducacionMundose/PIN1.git"
+       }
+       
+       stages {
+           stage('Checkout') {
+               steps {
+                   git branch: 'master', url: env.GIT_REPO
+               }
+           }
+           
+           stage('Build Docker Image') {
+               steps {
+                   script {
+                       dockerImage = docker.build("${NEXUS_URL}/${IMAGE_NAME}:${env.BUILD_ID}")
+                   }
+               }
+           }
+           
+           stage('Run Tests') {
+               steps {
+                   script {
+                       dockerImage.inside {
+                           sh 'npm install --only=dev'
+                           sh 'npm test'
+                       }
+                   }
+               }
+           }
+           
+           stage('Push to Nexus') {
+               steps {
+                   script {
+                       docker.withRegistry("http://${NEXUS_URL}", 'nexus-credentials') {
+                           dockerImage.push("${env.BUILD_ID}")
+                           dockerImage.push("latest")
+                       }
+                   }
+               }
+           }
+       }
+       
+       post {
+           always {
+               sh 'docker rmi ${NEXUS_URL}/${IMAGE_NAME}:${BUILD_ID}'
+           }
+       }
+   }
