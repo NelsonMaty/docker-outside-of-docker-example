@@ -1,5 +1,15 @@
 # Jenkins Docker-outside-of-Docker with Nexus Registry
 
+# Table of Contents
+
+1. Introduction
+2. Requisites
+3. Run Nexus
+4. Configure Nexus
+5. Run Jenkins
+6. Configure Jenkins
+7. Create Jenkins Pipeline
+
 ## 1. Introduction
 
 This project demonstrates how to set up a continuous integration and deployment (CI/CD) pipeline using Jenkins with Docker-outside-of-Docker (DooD) capabilities, integrated with a local Nexus repository for Docker images. This setup allows you to:
